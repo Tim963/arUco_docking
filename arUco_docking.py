@@ -17,16 +17,16 @@ class TurtleBotAruco(Node):
         self.bridge = CvBridge()
         self.marker_length = 0.05  # Größe des ArUco-Markers in Metern
         self.target_distance = 0.14  # Der gewünschte Abstand zum Marker
-        self.focal_length = 1920  # Ein Beispielwert für die Brennweite
+        self.focal_length = 1920  # Wert für die Brennweite der Kamera
         self.aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
         self.parameters = aruco.DetectorParameters()
-        self.detector = aruco.ArucoDetector(self.aruco_dict, self.parameters)  # Instantiate the detector
+        self.detector = aruco.ArucoDetector(self.aruco_dict, self.parameters)  
 
     def image_callback(self, data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-            corners, ids, _ = self.detector.detectMarkers(gray)  # Use the detector instance
+            corners, ids, _ = self.detector.detectMarkers(gray) 
             
             if ids is not None:
                 for i in range(len(ids)):
@@ -42,7 +42,7 @@ class TurtleBotAruco(Node):
                         # Robotersteuerung
                         self.control_turtlebot(distance, angle)
 
-                #aruco.drawDetectedMarkers(cv_image, corners, ids)  # Draw detected markers
+                #aruco.drawDetectedMarkers(cv_image, corners, ids)  
                 #cv2.imshow("Image", cv_image)
                 #cv2.waitKey(1)
 
@@ -66,19 +66,19 @@ class TurtleBotAruco(Node):
 
         # Prüfen der Position und Ausrichtung
         if abs(angle) > alignment_threshold or distance > self.target_distance + distance_threshold:
-            velocity_msg.linear.x = -0.1  # Vorwärts fahren
-            if abs(angle) > 0:  # Wenn wir nicht ausgerichtet sind
-                velocity_msg.angular.z = -0.5 * angle  # Drehen zur Ausrichtung
+            velocity_msg.linear.x = -0.1  
+            if abs(angle) > 0:  
+                velocity_msg.angular.z = -0.5 * angle  
                 velocity_msg.linear.x = -0.1
             else:
-                velocity_msg.angular.z = 0.0  # Keine Drehung notwendig
+                velocity_msg.angular.z = 0.0  
                 velocity_msg.linear.x = -0.1
         else:
             # Ziel erreicht
             velocity_msg.linear.x = 0.0
             velocity_msg.angular.z = 0.0
-          #  self.get_logger().info("Docking Complete")
-        # Geschwindigkeit veröffentlichen
+            self.get_logger().info("Docking Complete")
+
         self.cmd_vel_pub.publish(velocity_msg)
 
 def main(args=None):
